@@ -18,9 +18,15 @@ Nouvelle règles:
 	- Pour un arbre de taille `2` => `7` points de soleil + le nombre d'arbre de taille `3`  
 
 Nouvelles idées:  
-- `COMPLETE` tout les arbres de taille `3`  
-- Pour chaque arbre de taille `2`:  
-	- Le faire `GROW`  
-	- Le `COMPLETE` directement  
-- Quand il n'y a plus d'arbre de taille `2`, faire la même chose pour tout les tailles `1`
+> Idée 1:
+>- `COMPLETE` tout les arbres de taille `3`  
+>- Pour chaque arbre de taille `2`:  
+>	- Le faire `GROW`  
+>	- Le `COMPLETE` directement  
+>- Quand il n'y a plus d'arbre de taille `2`, faire la même chose pour tout les tailles `1`
+
+> Idée 2:
+>- Calculer la `valeur` d'un arbre, c'est à dire combien il me rapport de point en fonction de combien je vais dépenser pour lui
+>- Classer tout mes arbres par leur `valeur` et `développer` le plus `rentable`
+>- Puis passer au suivant
 
