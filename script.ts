@@ -33,6 +33,10 @@ class Tree {
     }
 }
 
+const GROW_TO_TWO_COST = 3;
+const GROW_TO_THREE_COST = 7;
+const COMPLETE_COST = 4;
+
 const WAIT = 'WAIT';
 const SEED = 'SEED';
 const GROW = 'GROW';
@@ -125,39 +129,73 @@ class Game {
 
     getNextAction(): Action {
         // TODO: write your algorithm here
-        const myTrees = getSortedTree();
+        
+        // Ligue Bois 2
+        // const myTrees = getSortedTree(game.trees);
+
+        // Ligue Bois 1
+        const myTrees = getSortedTreeByValue(game.trees, game.nutrients);
 
         // Si j'ai plus assez de soleil pour completer le cycle d'un arbre je WAIT
-        if(game.mySun < 4) {
+        if(game.mySun < COMPLETE_COST) {
             return this.possibleActions[0];
         }
 
         // Si j'ai assez de soleil
         // je depile ma list d'arbre
-        return new Action(COMPLETE, myTrees.pop().cellIndex);
+        const bestTree = myTrees.pop();
+
+        return bestTree.size === 3 
+            ? new Action(COMPLETE, bestTree.cellIndex)
+            : new Action(GROW, bestTree.cellIndex);
+            
     }
 }
 
-function getSortedTree(): Array<Tree> {
+// La valeur d'un arbre => combien il va me rapporter par rapport a combien il va me couter
+function calculateTreeValue(tree: Tree, nutrient: number): number {
 
+    const score = game.cells[tree.cellIndex].richness + nutrient;
+    let cost = 0;
+
+    switch(tree.size){
+        case 3:
+            cost = COMPLETE_COST;
+            break;
+        case 2:
+            cost = GROW_TO_THREE_COST + game.trees.filter((tree) => tree.size === 3).length;
+            break;
+        case 1:
+            cost = GROW_TO_TWO_COST + game.trees.filter((tree) => tree.size === 2).length + GROW_TO_THREE_COST + game.trees.filter((tree) => tree.size === 3).length;
+            break;
+        default:
+            console.log('Tree size bug');
+    } 
+
+    return score/cost;
+}
+
+function getMyTrees(trees: Array<Tree>): Array<Tree> {
     let myTrees: Array<Tree>  = [];
-
-    // Récupérer tout mes arbres (uniquement les arbres de taille 3 pour l'instant (Ligue Bois 2))
+    
     game.trees.forEach((tree) => {
-        if(tree.isMine && tree.size === 3) {
+        if(tree.isMine) {
             myTrees.push(tree);
         }
     });
 
-    // Les trier en fonction de ce qu'ils me rapportent
+    return myTrees;
+}
+
+function getSortedTreeByValue(gameTrees: Array<Tree>, nutrient: number): Array<Tree> {
+
+    let myTrees: Array<Tree>  = getMyTrees(gameTrees);
+
     myTrees.sort((treeA, treeB) => {
-        const treeRichnessA = game.cells[treeA.cellIndex].richness;
-        const treeRichnessB = game.cells[treeB.cellIndex].richness;
-        
         switch(true) {
-            case treeRichnessA > treeRichnessB:
-                return 1;
-            case treeRichnessA < treeRichnessB:
+            case calculateTreeValue(treeA, nutrient) > calculateTreeValue(treeB, nutrient):
+                return +1;
+            case calculateTreeValue(treeA, nutrient) < calculateTreeValue(treeB, nutrient):
                 return -1;
             default:
                 return 0;
@@ -165,6 +203,28 @@ function getSortedTree(): Array<Tree> {
     });
 
     return myTrees;
+}
+
+function getSortedTree(gameTrees: Array<Tree>): Array<Tree> {
+
+    let myTrees: Array<Tree>  = getMyTrees(gameTrees);
+
+    // Les trier en fonction de ce qu'ils me rapportent
+    return myTrees.sort((treeA, treeB) => {
+        const treeRichnessA = game.cells[treeA.cellIndex].richness;
+        const treeRichnessB = game.cells[treeB.cellIndex].richness;
+
+        if(treeA.size === treeB.size) {
+            switch(true) {
+                case treeRichnessA > treeRichnessB:
+                    return 1;
+                case treeRichnessA < treeRichnessB:
+                    return -1;
+                default:
+                    return 0;
+            }
+        }
+    });
 }
 
 
