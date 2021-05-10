@@ -296,3 +296,7 @@ while (true) {
 
     console.log(action.toString());
 }
+
+function readline(): string {
+    throw new Error("Function not implemented.");
+}
